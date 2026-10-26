@@ -1,0 +1,97 @@
+version: 1
+project: house-prices
+
+scripts:
+  - id: prepare
+    file: src/prepare.py
+    purpose: Turn the listings file into numbers a model can learn from
+    nodes:
+      - id: load_listings
+        kind: function
+        status: built
+        purpose: Read all apartment listings into one table
+        explain: >-
+          Reads the listings file into a table with one row per apartment (240 rows):
+          size, rooms, distance to the centre, age, and the price in thousands.
+        signature: "load_listings(path: Path) -> pd.DataFrame"
+      - id: split_listings
+        kind: function
+        status: built
+        purpose: Set aside a quarter of the apartments for the final test
+        explain: >-
+          Shuffles the apartments in a fixed, repeatable order and keeps 25% (60) apart
+          as a test group the model never learns from. The other 180 are for training.
+        signature: "split_listings(df: pd.DataFrame, test_share: float = 0.25, seed: int = 0) -> tuple[pd.DataFrame, pd.DataFrame]"
+      - id: make_features
+        kind: function
+        status: built
+        purpose: Rescale the four apartment properties so they are comparable
+        explain: >-
+          Each property is shifted and divided so it has mean 0 and spread 1, using the
+          training apartments' mean and spread (reused unchanged for the test group).
+          Out comes X (4 numbers per apartment), the prices y, and the mean and spread used.
+        signature: "make_features(df: pd.DataFrame, scaling=None) -> tuple[np.ndarray, np.ndarray, tuple]"
+
+  - id: train
+    file: src/train.py
+    purpose: Fit the price model and save it
+    nodes:
+      - id: choose_penalty
+        kind: function
+        status: built
+        purpose: Pick how strongly to penalise large weights, using apartments held back from fitting
+        explain: >-
+          Takes the 180 training apartments and splits them into 5 groups of 36. For each
+          candidate penalty strength (0, then 12 values from 0.01 to 1000), it fits on 4 groups
+          (rescaled using only those 4) and measures the error on the 5th, rotating so every
+          group is checked once. The strength with the lowest average error is passed on;
+          the 60 test apartments are never used here.
+        signature: "choose_penalty(train_df: pd.DataFrame, n_folds: int = 5, seed: int = 0) -> tuple[float, np.ndarray]"
+      - id: fit_linear
+        kind: function
+        status: built
+        purpose: Find the weights that best predict price, while keeping the weights small
+        explain: >-
+          Finds one weight per property plus a base price so that the weighted sum is close
+          to the real prices, as before. It also adds a cost for large weights (the penalty
+          strength times the sum of squared weights), so a single property can't take
+          an extreme weight just to fit a few odd apartments. The base price isn't penalised.
+          With penalty 0 this is the old least-squares fit.
+        signature: "fit_linear(X: np.ndarray, y: np.ndarray, penalty: float = 0.0) -> tuple[np.ndarray, float]"
+
+  - id: evaluate
+    file: src/evaluate.py
+    purpose: Measure the model's error on apartments it never saw
+    nodes:
+      - id: report
+        kind: function
+        status: built
+        purpose: Report the typical prediction error on the test apartments
+        explain: >-
+          Predicts the price of each test apartment and compares it with the real price.
+          Reports RMSE (typical error, punishing big misses more) and MAE (average size
+          of the miss), both in thousands.
+        signature: "report(model_path: Path, X: np.ndarray, y: np.ndarray) -> dict"
+
+edges:
+  - from: prepare.load_listings
+    to: prepare.split_listings
+    data: listings table
+  - from: prepare.split_listings
+    to: prepare.make_features
+    data: training and test apartments
+    shape: "180 and 60 rows"
+  - from: prepare.make_features
+    to: train.fit_linear
+    data: rescaled properties and prices
+    shape: "X (180, 4), y (180,)"
+  - from: prepare.split_listings
+    to: train.choose_penalty
+    data: training apartments only
+    shape: "180 rows, split into 5 groups of 36"
+  - from: train.choose_penalty
+    to: train.fit_linear
+    data: chosen penalty strength
+  - from: train.fit_linear
+    to: evaluate.report
+    data: saved weights, rescaling and chosen penalty
