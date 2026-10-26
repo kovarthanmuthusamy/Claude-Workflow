@@ -23,14 +23,16 @@ actively questioning it, not from reading more output
 
 ## Install (once)
 
-In Claude Code, type:
+In Claude Code, run these two commands **one at a time** (wait for the first to finish):
 
-```
-/plugin marketplace add kovarthanmuthusamy/Claude-Workflow
-/plugin install archspec@archspec
-```
-
-Then restart Claude Code. That's all: there is nothing to `pip install`. You only need
+1. ```
+   /plugin marketplace add kovarthanmuthusamy/Claude-Workflow
+   ```
+   (If you get an "Add Marketplace" box instead, type only `kovarthanmuthusamy/Claude-Workflow` into it.)
+2. ```
+   /plugin install archspec@archspec
+   ```
+3. Restart Claude Code. That's all: there is nothing to `pip install`. You only need
 Python 3.8 or newer on the computer, under any name (`python3`, `python` or `py`).
 
 ## Set up a project (once per project)
