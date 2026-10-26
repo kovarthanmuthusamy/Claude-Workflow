@@ -162,3 +162,7 @@ claude --plugin-dir .          # try the plugin from this checkout
 
 The viewer's browser libraries are vendored in `archspec/static/vendor/` (no Node.js
 needed); `tools/fetch_vendor.py` re-downloads them.
+
+## License
+
+[MIT](LICENSE)
