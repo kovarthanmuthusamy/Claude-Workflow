@@ -32,7 +32,11 @@ In Claude Code, run these two commands **one at a time** (wait for the first to 
 2. ```
    /plugin install archspec@archspec
    ```
-3. Restart Claude Code. That's all: there is nothing to `pip install`. You only need
+3. ```
+   /reload-plugins
+   ```
+   It should report 1 plugin and 4 skills. (Adding the marketplace alone installs
+   nothing; step 2 is what installs the plugin.) That's all: there is nothing to `pip install`. You only need
 Python 3.8 or newer on the computer, under any name (`python3`, `python` or `py`).
 
 ## Set up a project (once per project)
