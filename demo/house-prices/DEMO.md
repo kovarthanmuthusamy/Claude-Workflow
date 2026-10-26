@@ -8,8 +8,8 @@ Code sessions; the full conversation is in
 ## 0. Setup (once per project)
 
 With the archspec plugin installed (see the main README), run `/archspec:setup` in the
-project. It adds `architecture.yaml` and the rules in `CLAUDE.md`. Then pick the
-**archspec:Explain as you go** style once with `/output-style`.
+project. It adds `architecture.yaml` and the rules in `CLAUDE.md`, turns on the
+**archspec:Explain as you go** style, and opens the diagram.
 
 ## 1. Ask, and get a plan (no code yet)
 

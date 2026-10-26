@@ -21,56 +21,30 @@ actively questioning it, not from reading more output
 
 ![The diagram while reviewing a plan](demo/house-prices/docs/demo/1-plan-review.png)
 
-## Install (once per computer)
+## Install (once)
 
-**You need:** [Claude Code](https://docs.claude.com/en/docs/claude-code), any Python from
-3.8 on (tested with 3.8 and 3.13), and git. The Python command can be called `python3`,
-`python` or `py`; Claude uses whichever one your computer has.
+In Claude Code, type:
 
-1. Install the one Python library the tool uses, with the same Python command:
+```
+/plugin marketplace add kovarthanmuthusamy/Claude-Workflow
+/plugin install archspec@archspec
+```
 
-   ```
-   python3 -m pip install ruamel.yaml      # macOS / Linux
-   py -3 -m pip install ruamel.yaml        # Windows (or: python -m pip install ruamel.yaml)
-   ```
-
-   If you skip this, the first archspec command prints the exact install line for the
-   Python it found.
-
-2. Start Claude Code (`claude`) in any folder and type:
-
-   ```
-   /plugin marketplace add kovarthanmuthusamy/Claude-Workflow
-   /plugin install archspec@archspec
-   ```
-
-   The first line tells Claude Code where to find the plugin (this GitHub repo); the
-   second installs it. You can also do both from a normal terminal:
-
-   ```
-   claude plugin marketplace add kovarthanmuthusamy/Claude-Workflow
-   claude plugin install archspec@archspec
-   ```
-
-3. Restart Claude Code. Type `/archspec` and you should see `setup`, `view`, `check` and
-   `walkthrough` in the list.
-
-The plugin is installed for your user, so it is available in every project. Nothing is
-copied into a project until you run `/archspec:setup` there.
+Then restart Claude Code. That's all: there is nothing to `pip install`. You only need
+Python 3.8 or newer on the computer, under any name (`python3`, `python` or `py`).
 
 ## Set up a project (once per project)
 
-Open Claude Code in the project folder and:
+Open Claude Code in the project and type:
 
-1. Run **`/archspec:setup`**. It creates `architecture.yaml` (the diagram, empty at first)
-   and adds the workflow rules to the project's `CLAUDE.md`, so Claude knows to plan into
-   the diagram and keep it up to date. If the project already has code, Claude offers to
-   map it into the diagram; say yes or no.
-2. Run **`/output-style`** and pick **archspec:Explain as you go**. From now on Claude
-   writes a short plan before a task and a recap after it. (The name includes the
-   `archspec:` prefix.)
-3. Run **`/archspec:view`**. Claude starts the viewer and gives you a link such as
-   `http://127.0.0.1:8765`. Keep that browser tab open while you work.
+```
+/archspec:setup
+```
+
+This adds the diagram file (`architecture.yaml`) and the workflow rules (in `CLAUDE.md`),
+turns on the plan/recap style, and opens the diagram in your browser. The style starts with
+your next Claude Code session. If the project already has code, Claude offers to map it
+into the diagram.
 
 ## Everyday use
 
@@ -113,8 +87,7 @@ Removing the plugin leaves your projects' `architecture.yaml` and `CLAUDE.md` in
 | Problem | Fix |
 |---|---|
 | `/archspec:...` commands don't appear | Restart Claude Code; check `claude plugin list` shows archspec as enabled |
-| "Explain as you go" isn't in `/output-style` | Look for **archspec:Explain as you go** (with the prefix); restart after installing |
-| "archspec needs one Python library" | Run the install line it prints; it names the exact Python to install into |
+| Claude doesn't plan first / no recap | The style starts in the next session after setup: restart Claude Code, or pick **archspec:Explain as you go** in `/output-style` |
 | "archspec needs Python 3.8 or newer" | Install a newer Python ([python.org](https://www.python.org/downloads/)); the old one can stay |
 | No Python found at all | Install Python 3.8+ and check that `python3 --version` (or `py -3 --version` on Windows) works in a terminal |
 | The browser shows nothing new | Reload the tab; if the viewer was stopped, run `/archspec:view` again |
@@ -149,6 +122,9 @@ edges:
 ```
 
 ## Without Claude Code (CI, pre-commit)
+
+The plugin bundles its one library ([ruamel.yaml](https://yaml.dev/doc/ruamel-yaml), MIT,
+in `vendor/`); the pip package installs it normally.
 
 The same tool is a pip package:
 

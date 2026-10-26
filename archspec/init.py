@@ -1,13 +1,15 @@
 """archview init: set up a project for the workflow.
 
-Adds architecture.yaml and the CLAUDE.md rules (the output style and skills come from the
-Claude Code plugin). Safe to rerun: an existing spec is never overwritten, and the rules
-block in CLAUDE.md (between the markers) is replaced in place.
+Adds architecture.yaml and the CLAUDE.md rules, and (when run from the Claude Code plugin)
+turns on the plugin's output style for this project. Safe to rerun: an existing spec is
+never overwritten, and the rules block in CLAUDE.md (between the markers) is replaced in
+place.
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import re
 import sys
@@ -17,6 +19,7 @@ RULES = Path(__file__).resolve().parent / "templates" / "claude_rules.md"
 START = "<!-- archspec:start (managed by `archview init`; rerun it to update this section) -->"
 END = "<!-- archspec:end -->"
 BLOCK_RE = re.compile(r"<!-- archspec:start\b.*?-->.*?<!-- archspec:end -->", re.S)
+STYLE = "archspec:Explain as you go"  # plugin output styles are namespaced by plugin name
 
 STARTER = """\
 version: 1
@@ -63,6 +66,24 @@ def init(root: Path, project: str | None = None) -> list[str]:
     return done
 
 
+def set_style(root: Path) -> str:
+    """Turn on the plan/recap output style in the project's personal Claude settings."""
+    path = root / ".claude" / "settings.local.json"
+    try:
+        settings = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    except ValueError:
+        return f"left {path.as_posix()} alone (not valid JSON); pick '{STYLE}' in /output-style"
+    current = settings.get("outputStyle")
+    if current == STYLE:
+        return f"output style '{STYLE}' already on"
+    if current and current.lower() != "default":
+        return f"kept your output style '{current}'; to switch, pick '{STYLE}' in /output-style"
+    settings["outputStyle"] = STYLE
+    path.parent.mkdir(exist_ok=True)
+    path.write_bytes((json.dumps(settings, indent=2) + "\n").encode("utf-8"))
+    return f"turned on the '{STYLE}' output style (in .claude/settings.local.json)"
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="archview init", description="Add architecture.yaml and CLAUDE.md rules to a project.")
     ap.add_argument("folder", nargs="?", default=".", help="project root (default: current folder)")
@@ -73,14 +94,17 @@ def main(argv: list[str] | None = None) -> int:
     if not root.is_dir():
         print(f"archview init: {root} is not a folder", file=sys.stderr)
         return 2
-    for line in init(root, args.project):
-        print(f"  {line}")
     plugin = bool(os.environ.get("ARCHSPEC_PLUGIN"))
-    view, walk = ("/archspec:view", "/archspec:walkthrough") if plugin else ("python -m archspec view", "/archspec:walkthrough (plugin)")
-    print("Next:\n"
-          "  1. In Claude Code, run  /output-style  and pick 'archspec:Explain as you go'\n"
-          f"  2. Ask Claude to plan a feature; review it with  {view}\n"
-          f"  3. After a change, run  {walk}  for a worked example")
+    done = init(root, args.project)
+    if plugin:  # the style lives in the plugin, so only set it when the plugin is installed
+        done.append(set_style(root))
+    for line in done:
+        print(f"  {line}")
+    if plugin:
+        print("Next: ask Claude for a feature. It plans first; review the plan in the diagram\n"
+              "(/archspec:view), say 'go ahead', and run /archspec:walkthrough to understand a change.")
+    else:
+        print("Next: open the diagram with  python -m archspec view")
     return 0
 
 

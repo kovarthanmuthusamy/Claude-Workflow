@@ -1,31 +1,38 @@
 ---
 name: setup
-description: Set up the current project for the archspec workflow (architecture.yaml + CLAUDE.md rules).
+description: Set up the current project for the archspec workflow (architecture.yaml, CLAUDE.md rules, the plan/recap style) and open the diagram.
 disable-model-invocation: true
 ---
 
 # Set up archspec in this project
 
-Run this in the project root and show the user its output:
+1. Run this in the project root:
 
-```
-python "${CLAUDE_PLUGIN_ROOT}/run.py" init
-```
+   ```
+   python "${CLAUDE_PLUGIN_ROOT}/run.py" init
+   ```
 
-`python` stands for whichever Python 3.8+ command this machine has: try `python3`, then
-`python`, then `py -3` (Windows), and keep using the first one that works.
+   `python` stands for whichever Python 3.8+ command this machine has: try `python3`, then
+   `python`, then `py -3` (Windows), and keep using the first one that works. Nothing needs
+   to be installed with pip. If no Python works at all, tell the user to install one from
+   python.org and stop.
 
-If it says a Python library is missing, run the install command it prints (it names the
-exact Python to install into), then run init again.
+2. Start the diagram viewer as a **background** command (it keeps running while you work):
 
-Then tell the user, briefly:
+   ```
+   python "${CLAUDE_PLUGIN_ROOT}/run.py" view
+   ```
 
-1. Turn on the plan/recap style once for this project: `/output-style` and pick
-   **archspec:Explain as you go**.
-2. Open the diagram any time with `/archspec:view`.
-3. Each feature: ask -> review the plan in the diagram -> "go ahead" -> read the recap ->
-   `/archspec:walkthrough` when they want to understand it in depth.
+   It opens the browser and prints its address.
 
-If the project already has Python code and `architecture.yaml` has no scripts yet, offer to
-map the existing code into it, following the rules that were just added to CLAUDE.md. Do not
-start mapping until the user agrees.
+3. Tell the user in at most five short lines:
+   - it's set up, and the diagram is open at <address>;
+   - from now on: ask for a feature, Claude plans first, review the plan in the diagram,
+     say "go ahead", get a recap; `/archspec:walkthrough` explains a change in depth;
+   - if init said it turned on the output style: it starts with the next Claude Code
+     session (or right away via `/output-style` → archspec:Explain as you go). If init
+     said it kept another style, pass that on.
+
+4. If the project already has Python code and `architecture.yaml` has no scripts yet, offer
+   to map the existing code into the diagram, following the rules just added to CLAUDE.md.
+   Don't start until the user agrees.
