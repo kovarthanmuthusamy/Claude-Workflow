@@ -1,0 +1,82 @@
+version: 1
+project: churn-model
+
+scripts:
+  - id: preprocess
+    file: src/preprocess.py
+    purpose: Load raw CSVs and produce a clean feature table
+    nodes:
+      - id: load_raw
+        kind: function            # function | class | method | stage
+        status: built             # planned | built | changed
+        purpose: Gather all raw customer records into one table
+        explain: >-
+          Reads every monthly CSV export in the data folder and stacks them into a
+          single table with one row per customer. Date columns are converted from
+          text into real dates so later steps can compute things like tenure. Nothing
+          is removed or changed yet; this is the untouched starting data.
+        signature: "load_raw(path: Path) -> pd.DataFrame"
+        helpers: [_parse_dates]
+      - id: build_features
+        kind: function
+        status: built
+        purpose: Turn customer records into numbers the model can learn from
+        explain: >-
+          Takes the raw customer table and separates the answer column (did the
+          customer leave?) from everything else. Each text category, such as contract
+          type, becomes a set of yes/no columns, and each numeric column is rescaled
+          so all features are comparable in size. The result is a feature matrix X
+          with one row per customer and the label vector y.
+        signature: "build_features(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]"
+
+  - id: train
+    file: src/train.py
+    purpose: Train and save the classifier
+    nodes:
+      - id: Trainer
+        kind: class
+        status: built
+        purpose: Holds the model and the settings used to train it
+        explain: >-
+          Keeps the model together with its learning rate and number of training
+          passes, so training can be started, repeated and saved in one place. It is
+          the container; the actual learning happens in fit.
+        signature: "Trainer(lr: float, epochs: int)"
+        methods: [save]
+      - id: Trainer.fit
+        kind: method
+        status: built
+        purpose: Learn to predict churn from the feature matrix
+        explain: >-
+          Repeatedly shows the model all customers (one pass is an epoch) and nudges
+          its weights to reduce prediction error, step size set by the learning rate.
+          After each pass it measures accuracy and keeps a copy of the best model seen
+          so far, so overfitting in later passes cannot make the result worse.
+        signature: "fit(X: pd.DataFrame, y: pd.Series) -> None"
+
+  - id: evaluate
+    file: src/evaluate.py
+    purpose: Score the saved model on a hold-out set
+    nodes:
+      - id: report
+        kind: function
+        status: planned
+        purpose: Measure how well the model separates leavers from stayers
+        explain: >-
+          Loads the best saved model and scores customers it never saw during
+          training. Reports how well the scores rank leavers above stayers (AUC) and
+          a table of correct versus wrong predictions, so we know whether the model is
+          good enough to use.
+        reviewer_note: unknown fields must survive
+
+edges:
+  - from: preprocess.load_raw
+    to: preprocess.build_features
+    data: raw customer table
+  - from: preprocess.build_features
+    to: train.Trainer.fit
+    data: features X and labels y
+    shape: "X (N, 32) float32, y (N,)"
+  - from: train.Trainer.fit
+    to: evaluate.report
+    data: best saved model

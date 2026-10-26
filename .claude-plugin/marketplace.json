@@ -1,0 +1,12 @@
+{
+  "name": "archspec",
+  "description": "archspec: a workflow for understanding what Claude builds in Python/ML projects",
+  "owner": { "name": "Kovarthan" },
+  "plugins": [
+    {
+      "name": "archspec",
+      "source": "./",
+      "description": "Editable diagram + live view, plan/recap output style, and /walkthrough explanations"
+    }
+  ]
+}

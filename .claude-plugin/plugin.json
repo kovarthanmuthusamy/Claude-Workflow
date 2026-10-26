@@ -1,0 +1,8 @@
+{
+  "name": "archspec",
+  "displayName": "archspec: understand what Claude builds",
+  "version": "0.2.0",
+  "description": "A plain-language workflow for following Claude's work on Python/ML projects: an editable diagram of functions and data flow with a live view of Claude's activity, an output style that plans before and recaps after, and /walkthrough for worked-example explanations.",
+  "author": { "name": "Kovarthan" },
+  "keywords": ["architecture", "diagram", "explanation", "walkthrough", "machine-learning", "python"]
+}

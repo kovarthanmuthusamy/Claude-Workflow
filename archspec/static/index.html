@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Architecture</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="vendor/xyflow.css">
+  <link rel="stylesheet" href="app.css">
+  <script src="vendor/react.production.min.js"></script>
+  <script src="vendor/react-dom.production.min.js"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "react": "./vendor/react-shim.js",
+        "react/jsx-runtime": "./vendor/jsx-runtime-shim.js",
+        "react-dom": "./vendor/react-dom-shim.js",
+        "@xyflow/react": "./vendor/xyflow-react.mjs",
+        "htm": "./vendor/htm.mjs"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
