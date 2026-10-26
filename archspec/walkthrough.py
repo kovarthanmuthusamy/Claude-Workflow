@@ -104,7 +104,7 @@ def main(argv: list[str] | None = None) -> int:
 
     file, root = Path(args.file), Path(args.root).resolve()
     text, problems = render(file.read_text(encoding="utf-8"), root)
-    file.write_text(text, encoding="utf-8", newline="\n")
+    file.write_bytes(text.encode("utf-8"))
     for p in problems:
         print(f"  problem: {p}", file=sys.stderr)
     print(f"rendered {file} ({len(MARKER.findall(text))} markers, {len(problems)} problems)")

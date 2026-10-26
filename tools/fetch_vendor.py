@@ -38,7 +38,7 @@ def main() -> None:
         stub = re.fullmatch(r'\s*(?:/\*.*?\*/\s*)?export \* from "(/[^"]+)";\s*', text, re.S)
         if stub:
             text = get("https://esm.sh" + stub.group(1))
-        (VENDOR / name).write_text(text, encoding="utf-8", newline="\n")
+        (VENDOR / name).write_bytes(text.encode("utf-8"))
         print(f"{name:32} {len(text):>9,} bytes")
 
 

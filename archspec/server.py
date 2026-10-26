@@ -60,7 +60,7 @@ class ViewerServer(ThreadingHTTPServer):
             p = self.spec_path
             spec = schema.merge(schema.load(p), new_spec)
             tmp = p.with_name(p.name + ".tmp")
-            tmp.write_text(schema.dumps(spec), encoding="utf-8", newline="\n")
+            tmp.write_bytes(schema.dumps(spec).encode("utf-8"))
             os.replace(tmp, p)  # atomic: Claude never sees a half-written file
             return 200, self.payload()
 
@@ -78,7 +78,7 @@ class Handler(BaseHTTPRequestHandler):
             self._json(200, self.server.activity(int(after) if after.isdigit() else 0))
             return
         target = (STATIC / (path.lstrip("/") or "index.html")).resolve()
-        if not target.is_file() or not target.is_relative_to(STATIC):
+        if not target.is_file() or STATIC not in target.parents:
             self._send(404, b"not found", "text/plain")
             return
         self._send(200, target.read_bytes(), TYPES.get(target.suffix, "application/octet-stream"))

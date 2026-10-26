@@ -23,14 +23,19 @@ actively questioning it, not from reading more output
 
 ## Install (once per computer)
 
-**You need:** [Claude Code](https://docs.claude.com/en/docs/claude-code), Python 3.10 or
-newer available as `python`, and git.
+**You need:** [Claude Code](https://docs.claude.com/en/docs/claude-code), any Python from
+3.8 on (tested with 3.8 and 3.13), and git. The Python command can be called `python3`,
+`python` or `py`; Claude uses whichever one your computer has.
 
-1. Install the one Python library the tool uses:
+1. Install the one Python library the tool uses, with the same Python command:
 
    ```
-   python -m pip install ruamel.yaml
+   python3 -m pip install ruamel.yaml      # macOS / Linux
+   py -3 -m pip install ruamel.yaml        # Windows (or: python -m pip install ruamel.yaml)
    ```
+
+   If you skip this, the first archspec command prints the exact install line for the
+   Python it found.
 
 2. Start Claude Code (`claude`) in any folder and type:
 
@@ -109,8 +114,9 @@ Removing the plugin leaves your projects' `architecture.yaml` and `CLAUDE.md` in
 |---|---|
 | `/archspec:...` commands don't appear | Restart Claude Code; check `claude plugin list` shows archspec as enabled |
 | "Explain as you go" isn't in `/output-style` | Look for **archspec:Explain as you go** (with the prefix); restart after installing |
-| "No module named ruamel" | `python -m pip install ruamel.yaml` |
-| `python` not found | Install Python 3.10+ and make sure `python --version` works in a terminal |
+| "archspec needs one Python library" | Run the install line it prints; it names the exact Python to install into |
+| "archspec needs Python 3.8 or newer" | Install a newer Python ([python.org](https://www.python.org/downloads/)); the old one can stay |
+| No Python found at all | Install Python 3.8+ and check that `python3 --version` (or `py -3 --version` on Windows) works in a terminal |
 | The browser shows nothing new | Reload the tab; if the viewer was stopped, run `/archspec:view` again |
 | Adding the marketplace fails with "Filename too long" (Windows) | Run `git config --global core.longpaths true` and try again |
 

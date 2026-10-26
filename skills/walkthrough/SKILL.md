@@ -33,6 +33,9 @@ Then fill them by running, from the project root:
 python "${CLAUDE_PLUGIN_ROOT}/run.py" walkthrough docs/walkthroughs/<file>.md
 ```
 
+Here and in `run` markers, `python` stands for whichever Python command this machine has
+(`python3`, `python` or `py -3`); use the one the project's code runs with.
+
 ### Rule 2: structure (the reader's attention is the budget)
 
 The explanation must be readable without opening any code. Code is supporting evidence, so

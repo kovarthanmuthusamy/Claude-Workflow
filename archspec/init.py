@@ -42,13 +42,13 @@ def init(root: Path, project: str | None = None) -> list[str]:
     if spec.exists():
         done.append("kept existing architecture.yaml")
     else:
-        spec.write_text(STARTER.format(project=project or root.resolve().name), encoding="utf-8", newline="\n")
+        spec.write_bytes(STARTER.format(project=project or root.resolve().name).encode("utf-8"))
         done.append("created architecture.yaml")
 
     claude = root / "CLAUDE.md"
     block = rules_block()
     if not claude.exists():
-        claude.write_text(block + "\n", encoding="utf-8", newline="\n")
+        claude.write_bytes((block + "\n").encode("utf-8"))
         done.append("created CLAUDE.md with the architecture rules")
     else:
         text = claude.read_text(encoding="utf-8")
@@ -59,7 +59,7 @@ def init(root: Path, project: str | None = None) -> list[str]:
             new = text.rstrip() + "\n\n" + block + "\n"
             done.append("added the architecture rules to CLAUDE.md")
         if new != text:
-            claude.write_text(new, encoding="utf-8", newline="\n")
+            claude.write_bytes(new.encode("utf-8"))
     return done
 
 

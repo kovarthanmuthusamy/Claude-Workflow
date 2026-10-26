@@ -308,7 +308,7 @@ class ActivityWatcher:
                 event = {"ts": ts, "kind": "test", "detail": "running tests"}
             else:
                 for info in self.locator.scripts():
-                    module = info["rel"].removesuffix(".py").replace("/", ".")
+                    module = re.sub(r"\.py$", "", info["rel"]).replace("/", ".")
                     names = [info["rel"], info["rel"].replace("/", "\\"), Path(info["rel"]).name, module]
                     if any(re.search(rf"(?<![\w.\\/-]){re.escape(n)}(?![\w])", cmd) for n in names):
                         event = {"ts": ts, "kind": "run", "script": info["script"], "file": info["rel"],

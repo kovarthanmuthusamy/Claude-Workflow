@@ -76,15 +76,43 @@ class Sig:
         return f"{self.name}({ps})" + (f" -> {self.returns}" if self.returns else "")
 
 
+def _unparse_38(node: ast.AST) -> str:
+    """ast.unparse (3.9+) for the expressions annotations use, written like 3.9+ writes them."""
+    if isinstance(node, ast.Name):
+        return node.id
+    if isinstance(node, ast.Attribute):
+        return f"{_unparse_38(node.value)}.{node.attr}"
+    if isinstance(node, ast.Constant):
+        return "..." if node.value is Ellipsis else repr(node.value)
+    if isinstance(node, ast.Index):  # 3.8 wraps subscripts: list[int] -> Index(Name)
+        return _unparse_38(node.value)  # type: ignore[attr-defined]
+    if isinstance(node, ast.Subscript):
+        inner = node.slice.value if isinstance(node.slice, ast.Index) else node.slice  # type: ignore[attr-defined]
+        if isinstance(inner, ast.Tuple) and inner.elts:
+            return f"{_unparse_38(node.value)}[{', '.join(map(_unparse_38, inner.elts))}]"
+        return f"{_unparse_38(node.value)}[{_unparse_38(inner)}]"
+    if isinstance(node, ast.Tuple):
+        items = ", ".join(map(_unparse_38, node.elts))
+        return f"({items},)" if len(node.elts) == 1 else f"({items})"
+    if isinstance(node, ast.List):
+        return f"[{', '.join(map(_unparse_38, node.elts))}]"
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitOr):
+        return f"{_unparse_38(node.left)} | {_unparse_38(node.right)}"
+    return ast.dump(node)  # unusual annotation: still compares consistently
+
+
+_unparse = getattr(ast, "unparse", _unparse_38)
+
+
 def _ann(node: ast.expr | None) -> str | None:
     if node is None:
         return None
     if isinstance(node, ast.Constant) and isinstance(node.value, str):
         try:  # string annotation: "pd.DataFrame" == pd.DataFrame
-            return ast.unparse(ast.parse(node.value, mode="eval").body)
+            return _unparse(ast.parse(node.value, mode="eval").body)
         except SyntaxError:
             return node.value
-    return ast.unparse(node)
+    return _unparse(node)
 
 
 def sig_of(fn: ast.FunctionDef | ast.AsyncFunctionDef, name: str | None = None) -> Sig:

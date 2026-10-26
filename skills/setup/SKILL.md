@@ -12,7 +12,11 @@ Run this in the project root and show the user its output:
 python "${CLAUDE_PLUGIN_ROOT}/run.py" init
 ```
 
-If it says a Python library is missing, run the install command it prints, then run init again.
+`python` stands for whichever Python 3.8+ command this machine has: try `python3`, then
+`python`, then `py -3` (Windows), and keep using the first one that works.
+
+If it says a Python library is missing, run the install command it prints (it names the
+exact Python to install into), then run init again.
 
 Then tell the user, briefly:
 

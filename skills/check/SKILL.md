@@ -11,6 +11,9 @@ Run from the project root:
 python "${CLAUDE_PLUGIN_ROOT}/run.py" check
 ```
 
+`python` stands for whichever Python 3.8+ command this machine has: try `python3`, then
+`python`, then `py -3` (Windows), and keep using the first one that works.
+
 Exit code 1 means errors. For each error, fix the code or update the spec entry (status,
 signature, purpose/explain), then run the check again until it reports `archcheck: OK`.
 Warnings are suggestions (e.g. a function used from another script has no node).

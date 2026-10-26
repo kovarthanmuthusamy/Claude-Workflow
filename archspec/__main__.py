@@ -1,5 +1,7 @@
 """python -m archspec init | view | check  (works even when the scripts folder is not on PATH)."""
 
+from __future__ import annotations
+
 import sys
 
 from . import check, init, server, walkthrough

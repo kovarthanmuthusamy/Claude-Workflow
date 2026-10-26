@@ -13,6 +13,9 @@ project root:
 python "${CLAUDE_PLUGIN_ROOT}/run.py" view
 ```
 
+`python` stands for whichever Python 3.8+ command this machine has: try `python3`, then
+`python`, then `py -3` (Windows), and keep using the first one that works.
+
 It opens the browser itself and prints the address (`http://127.0.0.1:<port>/`). Give the
 user that address in one line, and mention: cards glow while you read or edit them; edits
 made in the diagram are saved back to architecture.yaml, and you build against them.
