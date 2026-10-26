@@ -26,7 +26,7 @@ actively questioning it, not from reading more output
 In Claude Code:
 
 ```
-/plugin marketplace add <your-github-name>/archspec
+/plugin marketplace add kovarthanmuthusamy/Claude-Workflow
 /plugin install archspec@archspec
 ```
 
@@ -86,7 +86,7 @@ edges:
 The same tool is a pip package:
 
 ```
-python -m pip install git+https://github.com/<your-github-name>/archspec
+python -m pip install git+https://github.com/kovarthanmuthusamy/Claude-Workflow
 python -m archspec check      # exit code 1 if the diagram and the code disagree
 python -m archspec view
 ```
